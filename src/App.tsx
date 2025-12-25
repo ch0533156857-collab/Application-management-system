@@ -14,6 +14,7 @@ import Narbar from './components/Navbar';
 import ManageStatusPage from './pages/ManageStatusPage';
 import ManagePriorityPage from './pages/ManagePriorityPage';
 import { Toaster } from 'react-hot-toast';
+import Footer from './components/footer';
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
           <Route path="/priorities" element={<ProtectedRoute allowedRoles={[userRole.admin]}><ManagePriorityPage /></ProtectedRoute>} />
           <Route path="*" element={<NotFoundPage />} />          
         </Routes>
+        <Footer />
       </Router>
     </AuthProvider>
   );
