@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getTicketByID, updateTicket } from "../services/ticketService";
+import { getTicketByID, updateTicket , deleteTicket} from "../services/ticketService";
 import { CommentList } from "../components/CommentList";
 import type { ticket } from "../types/Ticket";
 import type { comment } from "../types/Comment";
@@ -15,6 +15,7 @@ import type { user } from "../types/User";
 import TicketDetailsCard from "../components/TicketDetailsCard";
 import type { priority } from "../types/Priority";
 import toast from 'react-hot-toast';
+import { useNavigate } from "react-router-dom";
 
 export function TicketDetailsPage() {
     const { id } = useParams<{ id: string }>();
@@ -28,6 +29,7 @@ export function TicketDetailsPage() {
     const [priorityOptions, setPriorityOptions] = useState<priority[]>([]);
     const [agent, setAgent] = useState<user | null>(null);
     const [priority, setPriority] = useState<priority | null>(null);
+    const navigate = useNavigate();
 
 
    useEffect(() => {
@@ -174,7 +176,6 @@ export function TicketDetailsPage() {
             return;
         }
        try {
-            // await updateTicket(ticket.id, { ...ticket, status_id: newStatus });
             await updateTicket(ticket.id, { status_id: newStatus });
 
             const updatedTicket = await getTicketByID(ticket.id);
@@ -216,13 +217,58 @@ export function TicketDetailsPage() {
         }
     };
 
+    const handleDeleteTicket = async () => {
+        if(!ticket){
+            console.error('Ticket is null');
+            return;
+        }
+        try {
+            await deleteTicket(ticket.id);
+            setTicket(null);
+            toast.success('Ticket deleted successfully!', {
+                style: {
+                    background: 'linear-gradient(135deg, #00d9ff 0%, #00ff88 100%)',
+                    color: '#000',
+                    border: '3px solid #00d9ff',                    
+                    boxShadow: '0 0 30px rgba(0, 217, 255, 0.8), 0 0 60px rgba(0, 255, 136, 0.4)',
+                    borderRadius: '0px',
+                    fontWeight: 'bold',
+                    fontSize: '1em',
+                    animation: 'bounce 0.5s ease-in-out'
+                },
+                iconTheme: {
+                    primary: '#000',
+                    secondary: '#00ff88'                    
+                }
+            });
+            navigate('/tickets');
+        } catch (error) {
+            console.error('Failed to delete ticket:', error);
+            toast.error('Error deleting ticket', {
+                style: {
+                    background: 'linear-gradient(135deg, #ff006e 0%, #ff1744 100%)',
+                    color: '#fff',
+                    border: '3px solid #ff006e',
+                    boxShadow: '0 0 30px rgba(255, 0, 110, 0.8), 0 0 60px rgba(255, 23, 68, 0.4)',
+                    borderRadius: '0px',
+                    fontWeight: 'bold',
+                    fontSize: '1em',
+                    animation: 'shake 0.5s ease-in-out'
+                },
+                iconTheme: {
+                    primary: '#fff',
+                    secondary: '#ff006e'
+                }
+            });
+        }
+    };
+
     const handleUpdateTicketPriority = async (newPriority: priority) => {
         if(!ticket){
             console.error('Ticket is null');
             return;
         }
         try {
-            // await updateTicket(ticket.id, { ...ticket, priority_id: newPriority.id });
             await updateTicket(ticket.id, { priority_id: newPriority.id });
             const updatedTicket = await getTicketByID(ticket.id);
             setTicket(updatedTicket);
@@ -459,6 +505,12 @@ export function TicketDetailsPage() {
                                     }}
                                 />
                             </div>
+                        </div>
+                    )}
+
+                    {user && user.role === 'admin' && (
+                        <div style={{ marginTop: '2em' }}>
+                            <button onClick={handleDeleteTicket}>Delete Ticket</button>
                         </div>
                     )}
 

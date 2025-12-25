@@ -35,6 +35,8 @@ function TicketsPage() {
                 filteredTickets = response.filter(ticket => ticket.created_by === user!.id);
             }
 
+            
+
             setTickets(filteredTickets);
         } catch (error) {
             setError(error + ' Failed to load tickets');
